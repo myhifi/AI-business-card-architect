@@ -1,6 +1,8 @@
+<img width="859" height="493" alt="Mottalib_Digital_Labs_Cards" src="https://github.com/user-attachments/assets/b9c6d817-e890-4ef2-b6a0-6bcf64455d5a" />
 <div align="center">
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
+[Live Demo](https://ai-business-card-architect.vercel.app/)
 
 # Run and deploy your AI Studio app
 
