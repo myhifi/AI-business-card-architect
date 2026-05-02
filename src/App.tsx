@@ -5,13 +5,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Briefcase, Trash2, Library, Plus, Loader2, CreditCard, Sparkles, User, Building, Phone as PhoneIcon, Mail, Palette, Image as ImageIcon, Wand2, X, ShieldCheck, AlertTriangle, RotateCcw, FileText, Globe, Smartphone, QrCode, LayoutGrid, Download } from 'lucide-react';
+import { Briefcase, Trash2, Library, Plus, Loader2, CreditCard, Sparkles, User, Building, Phone as PhoneIcon, Mail, Palette, Image as ImageIcon, Wand2, X, ShieldCheck, AlertTriangle, RotateCcw, FileText, Globe, Smartphone, QrCode, LayoutGrid, Download, HelpCircle } from 'lucide-react';
 import { generateCardData, suggestSmartTheme, checkInputQuality } from './services/geminiService';
 import { generateCardArt } from './services/imageService';
 import { BusinessCard } from './types/card';
 import { BusinessCardDisplay } from './components/BusinessCardDisplay';
 import { getContrastColor } from './lib/colors';
 import { AuthModal } from './components/AuthModal';
+import { GuideModal } from './components/GuideModal';
 import { db } from './lib/storage';
 import { User as UserType, Profile } from './types/auth';
 
@@ -40,6 +41,7 @@ export default function App() {
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
   const [availableProfiles, setAvailableProfiles] = useState<Profile[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [showMigrateConfirm, setShowMigrateConfirm] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -404,6 +406,15 @@ export default function App() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans selection:bg-blue-100 italic selection:text-blue-900">
       <header className="relative py-16 px-6 overflow-hidden bg-white border-b border-zinc-200">
+        <div className="absolute top-8 left-8 z-50">
+          <button 
+            onClick={() => setIsGuideOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-50 border border-zinc-200 rounded-2xl hover:bg-zinc-100 transition-all text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-900"
+          >
+            <HelpCircle size={14} className="text-blue-600" />
+            Quick Guide
+          </button>
+        </div>
         <div className="absolute top-8 right-8 z-50 flex items-center gap-4">
           {currentUser ? (
             <div className="flex items-center gap-4">
@@ -980,6 +991,11 @@ export default function App() {
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
         onLogin={handleLogin} 
+      />
+      
+      <GuideModal 
+        isOpen={isGuideOpen} 
+        onClose={() => setIsGuideOpen(false)} 
       />
 
       <AnimatePresence>
