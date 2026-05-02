@@ -87,6 +87,11 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                       title="The 3-in-1 Package"
                       description="Archive your design into the vault with one click. Use 'Archive All 3 Layouts' to save every variation simultaneously."
                     />
+                    <GuideStep 
+                      icon={<Download className="text-rose-600" size={20} />} 
+                      title="Export & Management"
+                      description="Download any archived card as a high-quality PNG or print-ready PDF. You can also delete specific designs or purge your entire vault to stay organized."
+                    />
                   </div>
                 </div>
 
