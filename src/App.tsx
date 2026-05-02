@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Briefcase, Trash2, Library, Plus, Loader2, CreditCard, Sparkles, User, Building, Phone as PhoneIcon, Mail, Palette, Image as ImageIcon, Wand2, X, ShieldCheck, AlertTriangle, RotateCcw, FileText, Globe, Smartphone, QrCode, LayoutGrid, Download, HelpCircle } from 'lucide-react';
+import { Briefcase, Trash2, Library, Plus, Loader2, CreditCard, Sparkles, User, Building, Phone as PhoneIcon, Mail, Palette, Image as ImageIcon, Wand2, X, ShieldCheck, AlertTriangle, RotateCcw, FileText, Globe, Smartphone, QrCode, LayoutGrid, Download, HelpCircle, Settings } from 'lucide-react';
 import { generateCardData, suggestSmartTheme, checkInputQuality } from './services/geminiService';
 import { generateCardArt } from './services/imageService';
 import { BusinessCard } from './types/card';
@@ -13,6 +13,7 @@ import { BusinessCardDisplay } from './components/BusinessCardDisplay';
 import { getContrastColor } from './lib/colors';
 import { AuthModal } from './components/AuthModal';
 import { GuideModal } from './components/GuideModal';
+import { AccountModal } from './components/AccountModal';
 import { db } from './lib/storage';
 import { User as UserType, Profile } from './types/auth';
 
@@ -42,6 +43,7 @@ export default function App() {
   const [availableProfiles, setAvailableProfiles] = useState<Profile[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [showMigrateConfirm, setShowMigrateConfirm] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -417,14 +419,21 @@ export default function App() {
         </div>
         <div className="absolute top-8 right-8 z-50 flex items-center gap-4">
           {currentUser ? (
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col items-end">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-end mr-2">
                 <span className="text-xs font-black text-zinc-900">{currentUser.username}</span>
                 <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Cloud Sync Active</span>
               </div>
               <button 
+                onClick={() => setIsAccountModalOpen(true)}
+                className="p-3 bg-zinc-100 text-zinc-600 rounded-2xl hover:bg-zinc-200 transition-all flex items-center justify-center"
+                title="Account Settings"
+              >
+                <Settings size={18} />
+              </button>
+              <button 
                 onClick={handleLogout}
-                className="p-3 bg-zinc-900 text-white rounded-2xl hover:bg-black transition-all shadow-xl shadow-black/10 flex items-center gap-2 text-xs font-bold"
+                className="p-3 bg-zinc-900 text-white rounded-2xl hover:bg-black transition-all shadow-xl shadow-black/10 flex items-center gap-2 text-xs font-bold px-4"
               >
                 Logout
               </button>
@@ -997,6 +1006,15 @@ export default function App() {
         isOpen={isGuideOpen} 
         onClose={() => setIsGuideOpen(false)} 
       />
+
+      {currentUser && (
+        <AccountModal
+          isOpen={isAccountModalOpen}
+          onClose={() => setIsAccountModalOpen(false)}
+          user={currentUser}
+          onLogout={handleLogout}
+        />
+      )}
 
       <AnimatePresence>
         {showMigrateConfirm && (

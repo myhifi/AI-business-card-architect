@@ -25,6 +25,28 @@ export const db = {
       return card;
     });
     db.saveCards(updatedCards);
+  },
+
+  updatePassword: (userId: string, newPasswordHash: string) => {
+    const users = db.getUsers();
+    const updatedUsers = users.map(u => u.id === userId ? { ...u, passwordHash: newPasswordHash } : u);
+    db.saveUsers(updatedUsers);
+  },
+
+  deleteUser: (userId: string) => {
+    // 1. Delete associated cards
+    const profiles = db.getProfiles().filter(p => p.userId === userId);
+    const profileIds = profiles.map(p => p.id);
+    const remainingCards = db.getCards().filter(c => !profileIds.includes(c.profileId));
+    db.saveCards(remainingCards);
+
+    // 2. Delete associated profiles
+    const remainingProfiles = db.getProfiles().filter(p => p.userId !== userId);
+    db.saveProfiles(remainingProfiles);
+
+    // 3. Delete user
+    const remainingUsers = db.getUsers().filter(u => u.id !== userId);
+    db.saveUsers(remainingUsers);
   }
 };
 
