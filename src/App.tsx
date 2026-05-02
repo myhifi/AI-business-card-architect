@@ -185,6 +185,11 @@ export default function App() {
     }
   };
 
+  const isQuotaError = (err: any) => {
+    const msg = err?.message?.toLowerCase() || '';
+    return msg.includes('429') || msg.includes('quota') || msg.includes('limit exceeded') || msg.includes('too many requests');
+  };
+
   const clearVault = () => {
     const profileId = activeProfile ? activeProfile.id : 'guest';
     const allCards = db.getCards().filter(c => c.profileId !== profileId);
@@ -240,7 +245,16 @@ export default function App() {
 
     try {
       const metadata = await generateCardData(nameInput, professionInput);
-      const logoUrl = await generateCardArt(metadata.company || professionInput);
+      
+      let logoUrl = 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=256&h=256&auto=format&fit=crop';
+      try {
+        logoUrl = await generateCardArt(metadata.company || professionInput);
+      } catch (err: any) {
+        console.warn("Art synthesis failed, using fallback asset", err);
+        if (isQuotaError(err)) {
+          setError('AI Design Forge is currently cooling down due to high demand. We\'ve generated a professional layout for you with a temporary placeholder logo. You can try regenerating the logo in a minute!');
+        }
+      }
 
       const newCard: BusinessCard = {
         id: crypto.randomUUID(),
@@ -269,7 +283,11 @@ export default function App() {
       setWebsiteInput('');
       setQrLinkInput('');
     } catch (err: any) {
-      setError(err.message || 'Something went wrong during design synthesis.');
+      if (isQuotaError(err)) {
+        setError('The AI synthesis engine is currently under high load. Please wait about 60 seconds before trying again. Your current inputs are preserved.');
+      } else {
+        setError(err.message || 'Something went wrong during design synthesis.');
+      }
       console.error(err);
     } finally {
       setIsGenerating(false);
@@ -307,6 +325,7 @@ export default function App() {
   const handleSmartTheme = async () => {
     if (!currentCard || isSuggestingTheme) return;
     setIsSuggestingTheme(true);
+    setError(null);
     try {
       const suggestion = await suggestSmartTheme(currentCard.jobTitle);
       setCurrentCard({
@@ -315,8 +334,12 @@ export default function App() {
         theme: suggestion.theme,
         customTextColor: undefined // Reset to auto
       });
-    } catch (err) {
-      console.error("Failed to suggest theme", err);
+    } catch (err: any) {
+      if (isQuotaError(err)) {
+        setError('Smart Theme engine is cooling down. Please try again in a minute.');
+      } else {
+        console.error("Failed to suggest theme", err);
+      }
     } finally {
       setIsSuggestingTheme(false);
     }
@@ -353,11 +376,17 @@ export default function App() {
   const handleRegenerateLogo = async () => {
     if (!currentCard || isRegeneratingLogo) return;
     setIsRegeneratingLogo(true);
+    setError(null);
     try {
       const newLogoUrl = await generateCardArt(currentCard.company);
       setCurrentCard({ ...currentCard, logoUrl: newLogoUrl });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to regenerate logo", err);
+      if (isQuotaError(err)) {
+        setError('AI Design Forge Logo module is currently cooling down. Try again in a minute.');
+      } else {
+        setError('Failed to synthesize logo. Please try again.');
+      }
     } finally {
       setIsRegeneratingLogo(false);
     }
@@ -620,7 +649,20 @@ export default function App() {
                 <span>{isGenerating ? 'Synthesizing...' : 'Design Card'}</span>
               </button>
 
-              {error && <p className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-xl text-xs font-medium">{error}</p>}
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className={`p-4 border rounded-2xl text-xs font-medium flex gap-3 ${
+                    error.includes('AI Design Forge is currently cooling down') || error.includes('synthesis engine is currently under high load')
+                      ? 'bg-amber-50 border-amber-100 text-amber-700' 
+                      : 'bg-red-50 border-red-100 text-red-600'
+                  }`}
+                >
+                  <AlertTriangle size={16} className="shrink-0" />
+                  <p>{error}</p>
+                </motion.div>
+              )}
             </form>
           </section>
 
