@@ -1,3 +1,4 @@
+<img width="859" height="493" alt="Mottalib_Digital_Labs_Cards" src="https://github.com/user-attachments/assets/0fd0c148-29cd-42de-b694-9c42f62c05f6" />
 <div align="center">
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
